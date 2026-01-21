@@ -1,3 +1,4 @@
+import { estimateMaintenance } from "@/lib/maintenanceEstimator";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { createBooking } from "@/lib/Bookingapi";
@@ -228,6 +229,53 @@ const index = () => {
                   ))}
                 </ul>
               </div>
+              {/* Maintenance Cost Estimator */}
+{(() => {
+  const ageYears = carDetails?.specs?.year
+    ? new Date().getFullYear() - Number(carDetails.specs.year)
+    : 0;
+
+  const kmDriven = Number(
+    String(carDetails?.specs?.km ?? "0").replace(/,/g, "")
+  );
+
+  const m = estimateMaintenance({
+    brand: carDetails?.title ?? "", // brand not separately available, using title
+    ageYears,
+    kmDriven,
+  });
+
+  return (
+    <div className="mt-6 rounded-lg border p-4">
+      <h3 className="font-semibold text-gray-800 mb-2">
+        Maintenance Cost Estimator
+      </h3>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="rounded-md bg-gray-50 p-3">
+          <p className="text-xs text-gray-500">Maintenance Tag</p>
+          <p className="font-semibold mt-1">{m.tag}</p>
+        </div>
+
+        <div className="rounded-md bg-gray-50 p-3">
+          <p className="text-xs text-gray-500">Estimated Monthly Cost</p>
+          <p className="text-xl font-bold mt-1">
+            ₹{m.monthlyCost.toLocaleString()}
+          </p>
+        </div>
+
+        <div className="rounded-md bg-gray-50 p-3">
+          <p className="text-xs text-gray-500">Upcoming Insights</p>
+          <ul className="mt-1 list-disc pl-5 text-sm text-gray-700 space-y-1">
+            {m.insights.map((x, i) => (
+              <li key={i}>{x}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+})()}
             </div>
             {/* booking form  */}
             <div className="bg-white rounded-lg shadow-md p-6">
